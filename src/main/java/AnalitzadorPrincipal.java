@@ -27,23 +27,8 @@ public class AnalitzadorPrincipal {
             Process processB = pbB.start();
 
             // Feed both children concurrently using separate asynchronous tasks (prevents deadlocks)
-            CompletableFuture<Void> writeA = CompletableFuture.runAsync(() -> {
-                try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(processA.getOutputStream()))){
-                    writer.write(sampleLogs);
-                    writer.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-
-            CompletableFuture<Void> writeB = CompletableFuture.runAsync(() -> {
-                try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(processB.getOutputStream()))){
-                    writer.write(sampleLogs);
-                    writer.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
+            CompletableFuture<Void> writeA = CompletableFuture.runAsync(() -> writeToProcess(processA, sampleLogs));
+            CompletableFuture<Void> writeB = CompletableFuture.runAsync(() -> writeToProcess(processB, sampleLogs));
 
             // Read child responses asynchronously to avoid blocking
             CompletableFuture<String> readA = CompletableFuture.supplyAsync(() -> readChildOutput(processA));
@@ -71,6 +56,15 @@ public class AnalitzadorPrincipal {
             Thread.currentThread().interrupt();
         } catch (CompletionException e) {
             System.err.println("Asynchronous stream communication error: " + e.getMessage());
+        }
+    }
+
+    private static void writeToProcess(Process process, String data){
+        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))){
+            writer.write(data);
+            writer.flush();
+        }catch (IOException e) {
+            throw new CompletionException("Failed to write to child process", e);
         }
     }
 
