@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 public class AnalitzadorPrincipal {
     public static void main(String[] args) {
@@ -63,8 +64,13 @@ public class AnalitzadorPrincipal {
 
             System.out.println("RESULTAT: ERRORS=" + errorsCount + " | WARNINGS=" + warningsCount + " | EXIT_CODE=" + combinedExitCode);
 
-        } catch(Exception e){
-            e.printStackTrace();
+        } catch(IOException e){
+            System.err.println("I/O error during process execution: " + e.getMessage());
+        } catch(InterruptedException e){
+            System.err.println("Process execution was interrupted: " + e.getMessage());
+            Thread.currentThread().interrupt();
+        } catch (CompletionException e) {
+            System.err.println("Asynchronous stream communication error: " + e.getMessage());
         }
     }
 
@@ -76,7 +82,7 @@ public class AnalitzadorPrincipal {
                 output.append(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new CompletionException("Failed to read from child process", e);
         }
         return output.toString();
     }
