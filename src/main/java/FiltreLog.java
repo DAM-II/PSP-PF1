@@ -3,7 +3,7 @@ import java.io.InputStreamReader;
 
 public class FiltreLog {
     public static void main(String[] args){
-        String targetWord = "ERROR";
+        String targetWord = (args.length > 0 && !args[0].trim().isEmpty()) ? args[0].trim() : "ERROR";
         int count = 0;
         boolean hasContent = false;
 
@@ -26,7 +26,7 @@ public class FiltreLog {
             System.exit(1);
         }
 
-        System.out.println("Num de Errors: " + count);
+        System.out.println(count);
         System.exit(0);
     }
 }
