@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class FiltreLog {
@@ -17,12 +18,12 @@ public class FiltreLog {
                     count++;
                 }
             }
-        } catch(Exception e){
+        } catch(IOException e){
             e.printStackTrace();
         }
 
         if(!hasContent){
-            System.err.println("Error: Text Buit");
+            System.err.println("Error: Text buit");
             System.exit(1);
         }
 
